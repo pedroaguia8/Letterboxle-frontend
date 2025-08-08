@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css'
 import MovieSearch from './MovieSearch';
+import Modal from './Modal';
 
 // later we will pull this from the backend
 const correctMovie = { name: "Jurassic Park", year: 1993 };
@@ -19,13 +20,33 @@ function App() {
   const [currentGuess, setCurrentGuess] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [gameStatus, setGameStatus] = useState('playing');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [correctMovieName, setCorrectMovieName] = useState();
+  const [correctMovieYear, setCorrectMovieYear] = useState();
+  const [hints, setHints] = useState([]);
 
+  useEffect(() => {
+    const fetchPuzzle = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/daily-puzzle');
+        const data = await response.json();
+		setCorrectMovieName(data.title);
+		setCorrectMovieYear(data.year);
+        setHints(data.hints);
+      } catch (error) {
+        console.error("Failed to fetch daily puzzle:", error);
+      }
+    };
+    fetchPuzzle();
+  }, []);
+	
   const handleSkip = () => {
     if (gameStatus === 'playing') {
       if (currentGuess < hintsData.length) {
         setCurrentGuess(currentGuess + 1);
       } else {
         setGameStatus('lost');
+		setIsModalOpen(true);
       }
     }
   };
@@ -40,17 +61,23 @@ function App() {
       if (selectedMovie.name === correctMovie.name 
 				&& selectedMovie.year === correctMovie.year) {
         setGameStatus('won');
+		setIsModalOpen(true);
       } else {
         console.log('Incorrect guess. Try again.');
 		if (currentGuess < hintsData.length) {
           setCurrentGuess(currentGuess + 1);
         } else {
 			setGameStatus('lost');
+			setIsModalOpen(true);
 		}
       }
 
 	  setSelectedMovie(null);
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -91,13 +118,22 @@ function App() {
 			</>
 		)}
 
-		{/* ⭐️ Display a message when the game is over */}
-        {gameStatus === 'won' && <h2>You won! Congratulations!</h2>}
-        {gameStatus === 'lost' && (
-			<h2>Game Over. The movie was {correctMovie.name} ({correctMovie.year}).</h2>
-		)}
-
       </main>
+
+	  <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        {gameStatus === 'won' && (
+          <>
+            <h2>You Won in {currentGuess} Guesses!</h2>
+            <p>The movie was: {correctMovie.name} {correctMovie.year}</p>
+          </>
+        )}
+        {gameStatus === 'lost' && (
+          <>
+            <h2>Nice Try!</h2>
+            <p>The movie was: {correctMovie.name} {correctMovie.year}</p>
+          </>
+        )}
+      </Modal>
     </>
   )
 }

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import './App.css'
 import MovieSearch from './MovieSearch';
 
+// later we will pull this from the backend
+const correctMovie = { name: "Jurassic Park", year: 1993 };
+
 // We'll put our mock hint data here for now.
 const hintsData = [
   { label: "Tagline", value: "An adventure 65 million years in the making." },
@@ -15,10 +18,15 @@ const hintsData = [
 function App() {
   const [currentGuess, setCurrentGuess] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [gameStatus, setGameStatus] = useState('playing');
 
   const handleSkip = () => {
-    if (currentGuess < hintsData.length) {
-      setCurrentGuess(currentGuess + 1);
+    if (gameStatus === 'playing') {
+      if (currentGuess < hintsData.length) {
+        setCurrentGuess(currentGuess + 1);
+      } else {
+        setGameStatus('lost');
+      }
     }
   };
 
@@ -29,9 +37,19 @@ function App() {
   const handleSubmit = () => {
     // Check if a movie has been selected before trying to submit
     if (selectedMovie) {
-      console.log('User submitted a guess:', selectedMovie.name);
-      // For now, we'll just log it. The actual game logic will go here later.
-      // Next steps will be to check if this is the correct movie.
+      if (selectedMovie.name === correctMovie.name 
+				&& selectedMovie.year === correctMovie.year) {
+        setGameStatus('won');
+      } else {
+        console.log('Incorrect guess. Try again.');
+		if (currentGuess < hintsData.length) {
+          setCurrentGuess(currentGuess + 1);
+        } else {
+			setGameStatus('lost');
+		}
+      }
+
+	  setSelectedMovie(null);
     }
   };
 
@@ -56,19 +74,29 @@ function App() {
             </div>
           );  
         })}
+		{gameStatus === 'playing' && (
+			<>
+				<MovieSearch onSelectMovie={handleMovieSelection} />
 
-        <MovieSearch onSelectMovie={handleMovieSelection} />
+				<div className="button-group">
+					<button className="skip-button" onClick={handleSkip}>Skip</button>
+					<button
+						className="submit-button"
+						onClick={handleSubmit}
+						disabled={!selectedMovie}
+					>
+						Submit
+					</button>
+				</div>
+			</>
+		)}
 
-        <div className="button-group">
-            <button className="skip-button" onClick={handleSkip}>Skip</button>
-            <button
-				className="submit-button"
-				onClick={handleSubmit}
-				disabled={!selectedMovie}
-			>
-				Submit
-			</button>
-        </div>
+		{/* ⭐️ Display a message when the game is over */}
+        {gameStatus === 'won' && <h2>You won! Congratulations!</h2>}
+        {gameStatus === 'lost' && (
+			<h2>Game Over. The movie was {correctMovie.name} ({correctMovie.year}).</h2>
+		)}
+
       </main>
     </>
   )

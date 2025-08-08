@@ -3,16 +3,6 @@ import './App.css'
 import MovieSearch from './MovieSearch';
 import Modal from './Modal';
 
-// We'll put our mock hint data here for now.
-const hintsData = [
-  { label: "Tagline", value: "An adventure 65 million years in the making." },
-  { label: "Genre", value: "Adventure, Sci-Fi" },
-  { label: "Year", value: "1993" },
-  { label: "Director", value: "Steven Spielberg" },
-  { label: "Cast", value: "Sam Neill, Laura Dern, Jeff Goldblum" },
-  { label: "Budget", value: "$63,000,000" },
-];
-
 function App() {
   const [currentGuess, setCurrentGuess] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -39,7 +29,7 @@ function App() {
 	
   const handleSkip = () => {
     if (gameStatus === 'playing') {
-      if (currentGuess < hintsData.length) {
+      if (currentGuess < hints.length) {
         setCurrentGuess(currentGuess + 1);
       } else {
         setGameStatus('lost');
@@ -87,7 +77,7 @@ function App() {
       </div>
 
       <main className="grid">
-        {hintsData.map((hint, index) => {
+        {hints.map((hint, index) => {
           const guessNumber = index + 1;
           const isRevealed = guessNumber <= currentGuess;
 

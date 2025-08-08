@@ -30,11 +30,9 @@ function MovieSearch({ onSelectMovie }) {
                 } catch (error) {
                     console.error("Failed to fetch movie suggestions:", error);
                     setSuggestions([]);
-                    onSelectMovie(null);
                 }
             } else {
                 setSuggestions([]);
-                onSelectMovie(null);
             }
         }, debounceTimeout);
     }

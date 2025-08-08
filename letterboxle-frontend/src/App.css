@@ -26,14 +26,157 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px; /* Add some space between each guess row */
+  gap: 8px;
   padding: 10px;
 }
 
 .guess-row {
-  display: flex; /* Make items inside the row sit side-by-side */
-  gap: 8px; /* Add space between the boxes in a row */
-  width: 400px; /* An example width for a 5-letter word, we can adjust this */
-  height: 50px; /* The height of each guess row */
-  border: 1px solid #3a3a3c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 400px;
+  min-height: 40px;
+  background: linear-gradient(135deg, #2a2d35 0%, #1f2128 100%);
+  border: 2px solid #3a3a3c;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.guess-row:hover {
+  border-color: #4a4a4c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hint-label {
+  font-weight: 600;
+  color: #8b8b8b;
+  margin: 0;
+  min-width: 60px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.hint-value {
+  font-weight: 500;
+  color: #e4e6eb;
+  margin: 0;
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+}
+
+.guess-controls {
+  width: 400px;
+  position: relative;
+  margin: 16px 0;
+  box-sizing: border-box;
+}
+
+.guess-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  background: linear-gradient(135deg, #2a2d35 0%, #1f2128 100%);
+  border: 2px solid #3a3a3c;
+  border-radius: 8px;
+  color: #e4e6eb;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.guess-input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.guess-input::placeholder {
+  color: #8b8b8b;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #2a2d35 0%, #1f2128 100%);
+  border: 2px solid #3a3a3c;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.suggestions-list li {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #3a3a3c;
+  font-size: 14px;
+}
+
+.suggestions-list li:last-child {
+  border-bottom: none;
+}
+
+.suggestions-list li:hover {
+  background: linear-gradient(135deg, #3a3d45 0%, #2f3138 100%);
+  color: #646cff;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.skip-button,
+.submit-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.skip-button {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: #e4e6eb;
+}
+
+.skip-button:hover {
+  background: linear-gradient(135deg, #7c858d 0%, #6a7278 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #646cff 0%, #535bf2 100%);
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #747bff 0%, #636bf3 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.submit-button:disabled {
+  background: linear-gradient(135deg, #4a4a4c 0%, #3a3a3c 100%);
+  color: #8b8b8b;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }

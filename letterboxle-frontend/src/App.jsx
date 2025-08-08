@@ -3,9 +3,6 @@ import './App.css'
 import MovieSearch from './MovieSearch';
 import Modal from './Modal';
 
-// later we will pull this from the backend
-const correctMovie = { name: "Jurassic Park", year: 1993 };
-
 // We'll put our mock hint data here for now.
 const hintsData = [
   { label: "Tagline", value: "An adventure 65 million years in the making." },
@@ -58,8 +55,8 @@ function App() {
   const handleSubmit = () => {
     // Check if a movie has been selected before trying to submit
     if (selectedMovie) {
-      if (selectedMovie.name === correctMovie.name 
-				&& selectedMovie.year === correctMovie.year) {
+      if (selectedMovie.name === correctMovieName 
+				&& selectedMovie.year === correctMovieYear) {
         setGameStatus('won');
 		setIsModalOpen(true);
       } else {
@@ -124,13 +121,13 @@ function App() {
         {gameStatus === 'won' && (
           <>
             <h2>You Won in {currentGuess} Guesses!</h2>
-            <p>The movie was: {correctMovie.name} {correctMovie.year}</p>
+            <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
           </>
         )}
         {gameStatus === 'lost' && (
           <>
             <h2>Nice Try!</h2>
-            <p>The movie was: {correctMovie.name} {correctMovie.year}</p>
+            <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
           </>
         )}
       </Modal>

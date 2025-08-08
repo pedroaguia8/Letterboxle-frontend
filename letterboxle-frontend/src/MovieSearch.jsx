@@ -2,15 +2,6 @@ import { useState, useRef } from 'react';
 
 const debounceTimeout = 500;
 
-const mockMovies = [
-  { name: "Jurassic Park", year: 1993 },
-  { name: "Jumanji", year: 1995 },
-  { name: "Jurassic World", year: 2015 },
-  { name: "Jurassic Park III", year: 2001 },
-  { name: "The Lost World: Jurassic Park", year: 1997 },
-  { name: "Indiana Jones and the Last Crusade", year: 1989 },
-];
-
 function MovieSearch({ onSelectMovie }) {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
@@ -21,6 +12,8 @@ function MovieSearch({ onSelectMovie }) {
         const newQuery = e.target.value;
         setQuery(newQuery);
 
+        onSelectMovie(null);
+
         // Clear the previous timeout to debounce the search.
         // This is the core of the debouncing logic.
         if (timeoutRef.current) {
@@ -28,15 +21,15 @@ function MovieSearch({ onSelectMovie }) {
         }
 
         // Set a new timeout that will run after the value of debounceTimeout ms.
-        timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = setTimeout(async () => {
             if (newQuery.length > 0) {
-                // Filter the movie list to find matches
-                const filteredSuggestions = mockMovies.filter(movie =>
-                    movie.name.toLowerCase().includes(newQuery.toLowerCase())
-                );
-                setSuggestions(filteredSuggestions.slice(0, 6));
-
-                if (!mockMovies.some(movie => `${movie.name} (${movie.year})` === newQuery)) {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/search-movies?query=${encodeURIComponent(newQuery)}`);
+                    const data = await response.json();
+                    setSuggestions(data);
+                } catch (error) {
+                    console.error("Failed to fetch movie suggestions:", error);
+                    setSuggestions([]);
                     onSelectMovie(null);
                 }
             } else {

@@ -1,0 +1,39 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.header {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.header p {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #adb5bd;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px; /* Add some space between each guess row */
+  padding: 10px;
+}
+
+.guess-row {
+  display: flex; /* Make items inside the row sit side-by-side */
+  gap: 8px; /* Add space between the boxes in a row */
+  width: 400px; /* An example width for a 5-letter word, we can adjust this */
+  height: 50px; /* The height of each guess row */
+  border: 1px solid #3a3a3c;
+}

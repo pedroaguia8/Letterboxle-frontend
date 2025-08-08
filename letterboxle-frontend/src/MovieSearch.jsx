@@ -23,8 +23,13 @@ function MovieSearch({ onSelectMovie }) {
                 movie.name.toLowerCase().includes(newQuery.toLowerCase())
             );
             setSuggestions(filteredSuggestions);
+
+            if (!mockMovies.some(movie => `${movie.name} (${movie.year})` === newQuery)) {
+                onSelectMovie(null);
+            }
         } else {
             setSuggestions([]);
+            onSelectMovie(null);
         }
     }
 

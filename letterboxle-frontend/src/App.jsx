@@ -51,7 +51,7 @@ function App() {
 		setIsModalOpen(true);
       } else {
         console.log('Incorrect guess. Try again.');
-		if (currentGuess < hintsData.length) {
+		if (currentGuess < hints.length) {
           setCurrentGuess(currentGuess + 1);
         } else {
 			setGameStatus('lost');

@@ -13,22 +13,26 @@ app.use(cors());
 // Endpoint to get the hints for the daily movie
 app.get('/api/daily-puzzle', async (req, res) => {
   try {
-    // 1. Get today's date in 'YYYY-MM-DD' format
     const today = new Date().toISOString().split('T')[0];
 
-    // 2. Fetch the puzzle for today's date from the database
     const puzzles = await sql`
       SELECT title, year, tagline, genres, director, actor1, actor2, budget
       FROM daily_puzzles
       WHERE date = ${today}
     `;
 
-    // 3. Check if a puzzle for today exists
     if (puzzles.length === 0) {
       return res.status(404).json({ error: "No puzzle found for today." });
     }
 
     const puzzleFromDb = puzzles[0];
+
+    // Format the budget
+    let formattedBudget = puzzleFromDb.budget;
+    if (puzzleFromDb.budget) {
+      const budgetNumber = parseInt(puzzleFromDb.budget, 10);
+      formattedBudget = `$${budgetNumber.toLocaleString('en-US')}`;
+    }
 
     // 4. Format the database data into the structure the frontend expects
     const formattedPuzzle = {
@@ -40,7 +44,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
         { label: "Director", value: puzzleFromDb.director },
         { label: "Actor 1", value: puzzleFromDb.actor1 },
         { label: "Actor 2", value: puzzleFromDb.actor2 },
-        { label: "Budget", value: puzzleFromDb.budget },
+        { label: "Budget", value: formattedBudget },
       ].filter(hint => hint.value), // This line filters out any hints with null/empty values
     };
 

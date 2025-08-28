@@ -15,7 +15,7 @@ function App() {
   useEffect(() => {
     const fetchPuzzle = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/daily-puzzle');
+        const response = await fetch('/api/daily-puzzle');
         const data = await response.json();
 		setCorrectMovieName(data.title);
 		setCorrectMovieYear(data.year);

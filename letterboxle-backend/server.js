@@ -4,7 +4,7 @@ const cors = require('cors');
 const sql = require('./db.js'); // Import the database connection
 
 const app = express();
-const PORT = 3001;
+const PORT = 3012;
 
 app.use(cors());
 

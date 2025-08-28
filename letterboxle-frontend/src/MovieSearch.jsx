@@ -24,7 +24,7 @@ function MovieSearch({ onSelectMovie }) {
         timeoutRef.current = setTimeout(async () => {
             if (newQuery.length > 0) {
                 try {
-                    const response = await fetch(`http://localhost:3001/api/search-movies?query=${encodeURIComponent(newQuery)}`);
+                    const response = await fetch(`/api/search-movies?query=${encodeURIComponent(newQuery)}`);
                     const data = await response.json();
                     setSuggestions(data);
                 } catch (error) {

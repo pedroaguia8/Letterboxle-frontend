@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./letterboxle-backend
+    container_name: letterboxle-backend
+    restart: unless-stopped
+    # If your backend needs environment variables (e.g., for db.js),
+    # you can add them here.
+    # environment:
+    #   - DATABASE_URL=mongodb://...
+    #   - PORT=3000
+    networks:
+      - npm
+
+  frontend:
+    build:
+      context: ./letterboxle-frontend
+    container_name: letterboxle-frontend
+    restart: unless-stopped
+    networks:
+      - npm
+
+networks:
+  npm:
+    external: true
+

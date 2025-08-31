@@ -72,7 +72,7 @@ function App() {
       <div className="app">
         <header className="header">
           <h1>🎬 Letterboxle 🍿</h1>
-          <p>Guess the movie</p>
+          <p>Guess today's movie</p>
         </header>
       </div>
 

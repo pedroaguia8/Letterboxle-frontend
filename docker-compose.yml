@@ -7,7 +7,7 @@ services:
     # If your backend needs environment variables (e.g., for db.js),
     # you can add them here.
     environment:
-      - DATABASE_URL=${DATABASE_URL_FROM_USER}
+      - DATABASE_URL=${DATABASE_URL}
     #   - PORT=3000
     networks:
       - npm

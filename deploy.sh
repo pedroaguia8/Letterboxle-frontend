@@ -11,5 +11,4 @@ else
     echo "No new URL provided. Using the existing one for the deployment."
 fi
 
-docker compose down
 docker compose up -d --build

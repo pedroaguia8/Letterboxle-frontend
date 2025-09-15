@@ -5,4 +5,5 @@ echo ""
 
 export DATABASE_URL_FROM_USER
 
+docker compose down
 docker compose up -d --build

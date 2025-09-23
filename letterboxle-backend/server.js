@@ -44,8 +44,8 @@ app.get('/api/daily-puzzle', async (req, res) => {
         { label: "Director", value: puzzleFromDb.director },
         { label: "Actor 1", value: puzzleFromDb.actor1 },
         { label: "Actor 2", value: puzzleFromDb.actor2 },
-        { label: "Budget", value: formattedBudget },
-      ].filter(hint => hint.value), // This line filters out any hints with null/empty values
+        { label: "Year", value: puzzleFromDb.year },
+      ].filter(hint => hint.value), // filter out any hints with null/empty values
     };
 
     res.json(formattedPuzzle);

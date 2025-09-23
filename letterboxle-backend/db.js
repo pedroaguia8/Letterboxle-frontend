@@ -1,6 +1,5 @@
-// db.js
 const postgres = require('postgres');
-require('dotenv').config(); // Loads .env file
+require('dotenv').config();
 
 const connectionString = process.env.DATABASE_URL;
 

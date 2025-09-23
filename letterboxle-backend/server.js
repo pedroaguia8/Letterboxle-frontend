@@ -8,8 +8,6 @@ const PORT = 3012;
 
 app.use(cors());
 
-// --- API Endpoints ---
-
 // Endpoint to get the hints for the daily movie
 app.get('/api/daily-puzzle', async (req, res) => {
   try {
@@ -34,7 +32,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
       formattedBudget = `$${budgetNumber.toLocaleString('en-US')}`;
     }
 
-    // 4. Format the database data into the structure the frontend expects
+    // Format the database data into the structure the frontend expects
     const formattedPuzzle = {
       title: puzzleFromDb.title,
       year: puzzleFromDb.year,
@@ -45,7 +43,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
         { label: "Actor 1", value: puzzleFromDb.actor1 },
         { label: "Actor 2", value: puzzleFromDb.actor2 },
         { label: "Year", value: puzzleFromDb.year },
-      ].filter(hint => hint.value), // filter out any hints with null/empty values
+      ].filter(hint => hint.value), // Filter out any hints with null/empty values
     };
 
     res.json(formattedPuzzle);

@@ -1,10 +1,12 @@
 // server.js
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const sql = require('./db.js'); // Import the database connection
+const sql = require('./db.js');
+
 
 const app = express();
-const PORT = 3012;
+const PORT = process.env.PORT || 3012;
 
 app.use(cors());
 

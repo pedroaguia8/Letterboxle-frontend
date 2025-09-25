@@ -111,7 +111,6 @@ function App() {
       <div className="app">
         <header className="header">
           <h1>🎬 Letterboxle 🍿</h1>
-          <p>Guess today's movie</p>
           {puzzleDate && <p className="puzzle-date">{formattedDate()}</p>}
         </header>
       </div>

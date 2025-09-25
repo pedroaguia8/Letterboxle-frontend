@@ -14,6 +14,7 @@ function App() {
   const [puzzleDate, setPuzzleDate] = useState('');
   const [guessHistory, setGuessHistory] = useState([]);
   const [shareText, setShareText] = useState('Share');
+  const [isIncorrect, setIsIncorrect] = useState(false);
 
   useEffect(() => {
     const fetchPuzzle = async () => {
@@ -68,6 +69,8 @@ function App() {
           setIsModalOpen(true);
       } else {
         setGuessHistory([...guessHistory, '❌']);
+        setIsIncorrect(true);
+        setTimeout(() => setIsIncorrect(false), 500); // Duration must match the CSS animation
 		if (currentGuess < hints.length) {
           setCurrentGuess(currentGuess + 1);
         } else {
@@ -115,7 +118,7 @@ function App() {
         </header>
       </div>
 
-      <main className="grid">
+      <main className={`grid ${isIncorrect ? 'shake' : ''}`}>
         {hints.map((hint, index) => {
           const guessNumber = index + 1;
           const isRevealed = guessNumber <= currentGuess || gameStatus !== 'playing';

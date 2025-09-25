@@ -198,3 +198,22 @@
     font-size: 2.2rem; /* Make the main title a bit smaller */
   }
 }
+
+.shake {
+  animation: shake 0.5s ease-in-out; /* Duration must match the incorrect answer state timeout */
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-1px);
+  }
+  20%, 80% {
+    transform: translateX(2px);
+  }
+  30%, 50%, 70% {
+    transform: translateX(-4px);
+  }
+  40%, 60% {
+    transform: translateX(4px);
+  }
+}

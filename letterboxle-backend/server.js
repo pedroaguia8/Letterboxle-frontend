@@ -73,7 +73,7 @@ app.get('/api/search-movies', async (req, res) => {
     const movies = await sql`
       SELECT title, year FROM movies
       WHERE title ILIKE ${'%' + query + '%'}
-      LIMIT 6
+      LIMIT 12
     `;
 
     // Map the results to the { name, year } format for the frontend

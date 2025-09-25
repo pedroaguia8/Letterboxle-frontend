@@ -13,7 +13,7 @@ app.use(cors());
 // Endpoint to get the hints for the daily movie
 app.get('/api/daily-puzzle', async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0]; // e.g., "2025-09-25"
 
     const puzzles = await sql`
       SELECT
@@ -40,6 +40,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
 
     // Format the database data into the structure the frontend expects
     const formattedPuzzle = {
+      date: today,
       title: puzzleFromDb.title,
       year: puzzleFromDb.year,
       hints: [

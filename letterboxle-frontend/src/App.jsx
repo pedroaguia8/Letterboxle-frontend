@@ -79,7 +79,7 @@ function App() {
       <main className="grid">
         {hints.map((hint, index) => {
           const guessNumber = index + 1;
-          const isRevealed = guessNumber <= currentGuess;
+          const isRevealed = guessNumber <= currentGuess || gameStatus === 'won';
 
           return (
             <div className='guess-row' key={index}>

@@ -82,6 +82,7 @@ function App() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setShareText('Share');
   };
 
   const handleShare = () => {
@@ -118,7 +119,7 @@ function App() {
       <main className="grid">
         {hints.map((hint, index) => {
           const guessNumber = index + 1;
-          const isRevealed = guessNumber <= currentGuess || gameStatus === 'won';
+          const isRevealed = guessNumber <= currentGuess || gameStatus !== 'playing';
 
           return (
             <div className='guess-row' key={index}>
@@ -127,24 +128,34 @@ function App() {
             </div>
           );  
         })}
-		{gameStatus === 'playing' && (
-			<>
-				<MovieSearch onSelectMovie={handleMovieSelection} />
+        {gameStatus === 'playing' && (
+          <>
+            <MovieSearch onSelectMovie={handleMovieSelection} />
 
-				<div className="button-group">
-					<button className="skip-button" onClick={handleSkip}>Skip</button>
-					<button
-						className="submit-button"
-						onClick={handleSubmit}
-						disabled={!selectedMovie}
-					>
-						Submit
-					</button>
-				</div>
-			</>
-		)}
-
+            <div className="button-group">
+              <button className="skip-button" onClick={handleSkip}>Skip</button>
+              <button
+                className="submit-button"
+                onClick={handleSubmit}
+                disabled={!selectedMovie}
+              >
+                Submit
+              </button>
+            </div>
+          </>
+        )}
       </main>
+
+      {gameStatus !== 'playing' && !isModalOpen && (
+        <div className="show-score-container">
+          <button 
+            className="show-score-button" 
+            onClick={() => setIsModalOpen(true)}
+          >
+            Show your score
+          </button>
+        </div>
+      )}
 
 	  <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         {gameStatus === 'won' && (

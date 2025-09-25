@@ -16,7 +16,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
 
     const puzzles = await sql`
-      SELECT title, year, tagline, genres, director, actor1, actor2, budget
+      SELECT title, year, tagline, genres, director, actor1, actor2
       FROM daily_puzzles
       WHERE date = ${today}
     `;
@@ -26,13 +26,6 @@ app.get('/api/daily-puzzle', async (req, res) => {
     }
 
     const puzzleFromDb = puzzles[0];
-
-    // Format the budget
-    let formattedBudget = puzzleFromDb.budget;
-    if (puzzleFromDb.budget) {
-      const budgetNumber = parseInt(puzzleFromDb.budget, 10);
-      formattedBudget = `$${budgetNumber.toLocaleString('en-US')}`;
-    }
 
     // Format the database data into the structure the frontend expects
     const formattedPuzzle = {

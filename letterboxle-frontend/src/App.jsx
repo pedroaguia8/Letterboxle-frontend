@@ -11,14 +11,18 @@ function App() {
   const [correctMovieName, setCorrectMovieName] = useState();
   const [correctMovieYear, setCorrectMovieYear] = useState();
   const [hints, setHints] = useState([]);
+  const [puzzleDate, setPuzzleDate] = useState('');
+  const [guessHistory, setGuessHistory] = useState([]);
+  const [shareText, setShareText] = useState('Share');
 
   useEffect(() => {
     const fetchPuzzle = async () => {
       try {
         const response = await fetch('/api/daily-puzzle');
         const data = await response.json();
-		setCorrectMovieName(data.title);
-		setCorrectMovieYear(data.year);
+        setPuzzleDate(data.date); 
+        setCorrectMovieName(data.title);
+        setCorrectMovieYear(data.year);
         setHints(data.hints);
       } catch (error) {
         console.error("Failed to fetch daily puzzle:", error);
@@ -26,9 +30,22 @@ function App() {
     };
     fetchPuzzle();
   }, []);
+
+  const formattedDate = () => {
+    if (!puzzleDate) return '';
+    const date = new Date(puzzleDate);
+    return date.toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    });
+  };
+
 	
   const handleSkip = () => {
     if (gameStatus === 'playing') {
+      setGuessHistory([...guessHistory, '⬇️']);
       if (currentGuess < hints.length) {
         setCurrentGuess(currentGuess + 1);
       } else {
@@ -43,14 +60,14 @@ function App() {
   };
 
   const handleSubmit = () => {
-    // Check if a movie has been selected before trying to submit
     if (selectedMovie) {
       if (selectedMovie.name === correctMovieName 
 				&& selectedMovie.year === correctMovieYear) {
-        setGameStatus('won');
-		setIsModalOpen(true);
+          setGuessHistory([...guessHistory, '🟩']);
+          setGameStatus('won');
+          setIsModalOpen(true);
       } else {
-        console.log('Incorrect guess. Try again.');
+        setGuessHistory([...guessHistory, '❌']);
 		if (currentGuess < hints.length) {
           setCurrentGuess(currentGuess + 1);
         } else {
@@ -67,12 +84,34 @@ function App() {
     setIsModalOpen(false);
   };
 
+  const handleShare = () => {
+    const title = `Letterboxle ${formattedDate()}`;
+    const score = gameStatus === 'won' ? `Guessed in ${currentGuess}/${hints.length}` : `X/${hints.length}`;
+    
+    const grid = hints.map((hint, index) => {
+      const emoji = index < guessHistory.length ? guessHistory[index] : '⬜';
+      return `${emoji} ${hint.label}`;
+    }).join('\n');
+
+    const shareableText = `${title}\n${score}\n${grid}\nGuess today's movie: https://letterboxle.pedroaguia8.dev`;
+
+    navigator.clipboard.writeText(shareableText).then(() => {
+      setShareText('Copied!');
+      setTimeout(() => {
+        setShareText('Share');
+      }, 2000); // Reset text after 2 seconds
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  };
+
   return (
     <>
       <div className="app">
         <header className="header">
           <h1>🎬 Letterboxle 🍿</h1>
           <p>Guess today's movie</p>
+          {puzzleDate && <p className="puzzle-date">{formattedDate()}</p>}
         </header>
       </div>
 
@@ -119,6 +158,11 @@ function App() {
             <h2>Nice Try!</h2>
             <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
           </>
+        )}
+        {(gameStatus === 'won' || gameStatus === 'lost') && (
+          <button className="share-button" onClick={handleShare}>
+            {shareText}
+          </button>
         )}
       </Modal>
     </>

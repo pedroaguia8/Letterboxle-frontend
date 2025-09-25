@@ -16,9 +16,20 @@ app.get('/api/daily-puzzle', async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
 
     const puzzles = await sql`
-      SELECT title, year, tagline, genres, director, actor1, actor2
-      FROM daily_puzzles
-      WHERE date = ${today}
+      SELECT
+        m.title,
+        m.year,
+        m.tagline,
+        m.genres,
+        m.director,
+        m.actor1,
+        m.actor2
+      FROM
+        daily_puzzle dp
+      JOIN
+        movies m ON dp.movie_id = m.id
+      WHERE
+        dp.date = ${today}
     `;
 
     if (puzzles.length === 0) {

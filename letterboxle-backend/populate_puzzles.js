@@ -1,79 +1,81 @@
-// populate_puzzles.js
 import sql from './db.js';
 
 /**
- * Fetches 30 random movies and inserts them into the daily_puzzles table for the next 30 days.
+ * A utility function to shuffle an array in place using the Fisher-Yates algorithm.
+ * @param {Array} array The array to shuffle.
+ */
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+}
+
+/**
+ * Fetches all popular movies and populates the daily_puzzle table with a unique
+ * puzzle for each day, starting from today. This is a one-time script.
  */
 async function populateDailyPuzzles() {
-  console.log('🚀 Starting puzzle population script...');
+  console.log('Starting one-time puzzle population script...');
 
   try {
-    // 1. Fetch 30 random movies with popularity > 30
-    console.log('🔍 Fetching 30 random movies from the database...');
-    const movies = await sql`
-      SELECT id, title, year, tagline, genres, budget, director, actor1, actor2
-      FROM movies
-      WHERE popularity > 30
-      ORDER BY RANDOM()
-      LIMIT 30
+    // Check if puzzles already exist to prevent running this twice.
+    const existingPuzzles = await sql`SELECT COUNT(*) FROM daily_puzzle`;
+    if (parseInt(existingPuzzles[0].count, 10) > 0) {
+      console.warn(`The 'daily_puzzle' table is not empty. Found ${existingPuzzles[0].count} puzzles.`);
+      console.log('To prevent overwriting data, the script will not run.'
+        + ' Please clear the table manually if you want to repopulate it.');
+      return;
+    }
+    console.log("'daily_puzzle' table is empty. Proceeding with population.");
+
+
+    // Fetch the IDs of all movies with popularity > 30
+    console.log('Fetching all popular movie IDs...');
+    const popularMovies = await sql`
+      SELECT id FROM movies WHERE popularity > 30
     `;
 
-    // Check if we found enough movies
-    if (movies.length < 30) {
-      console.warn(`⚠️ Warning: Found only ${movies.length} movies with popularity > 30. Please add more movies to the 'movies' table.`);
-      if (movies.length === 0) {
-        console.log('No movies to process. Exiting.');
-        return; // Exit if no movies are found
-      }
-    } else {
-      console.log(`✅ Successfully fetched ${movies.length} movies.`);
+    if (popularMovies.length === 0) {
+      console.error('No movies found with popularity > 30. Cannot create puzzles.');
+      return;
     }
 
-    // 2. Prepare the data for insertion
+    const movieIds = popularMovies.map(movie => movie.id);
+    console.log(`Found ${movieIds.length} popular movies.`);
+
+    // Shuffle the array of movie IDs randomly
+    console.log('Shuffling movie IDs for random puzzle distribution...');
+    shuffleArray(movieIds);
+    console.log('Movie IDs have been shuffled.');
+
+    // 4. Prepare the data for insertion
     const startDate = new Date();
-    const puzzlesToInsert = movies.map((movie, index) => {
-      // Calculate the date for the current puzzle
+    const puzzlesToInsert = movieIds.map((movieId, index) => {
       const puzzleDate = new Date(startDate);
       puzzleDate.setDate(startDate.getDate() + index);
 
       return {
-        // Map movie data to the daily_puzzles table columns
         date: puzzleDate.toISOString().split('T')[0], // Format as 'YYYY-MM-DD'
-        movie_id: movie.id,
-        title: movie.title,
-        year: movie.year,
-        tagline: movie.tagline,
-        genres: movie.genres,
-        budget: movie.budget,
-        director: movie.director,
-        actor1: movie.actor1,
-        actor2: movie.actor2,
+        movie_id: movieId,
       };
     });
-    
-    console.log(`📝 Preparing to insert ${puzzlesToInsert.length} puzzles...`);
 
-    // 3. Insert the new puzzles into the daily_puzzles table
-    // The 'postgres' library can efficiently handle inserting an array of objects.
-    // We add an ON CONFLICT clause to prevent errors if a puzzle for a specific date already exists.
+    console.log(`Preparing to insert ${puzzlesToInsert.length} puzzles into the 'daily_puzzle' table...`);
+
+    // Insert the new puzzles into the 'daily_puzzle' table
     const result = await sql`
-      INSERT INTO daily_puzzles ${sql(puzzlesToInsert)}
-      ON CONFLICT (date) DO NOTHING
+      INSERT INTO daily_puzzle ${sql(puzzlesToInsert)}
     `;
 
-    console.log(`✅ Successfully inserted ${result.count} new puzzles.`);
-    if (result.count < puzzlesToInsert.length) {
-        console.log(`ℹ️  ${puzzlesToInsert.length - result.count} puzzles were skipped because puzzles for those dates already exist.`);
-    }
+    console.log(`Successfully inserted ${result.count} new puzzles.`);
 
   } catch (error) {
-    console.error('❌ An error occurred:', error);
+    console.error('An error occurred during puzzle population:', error);
   } finally {
-    // 4. Always close the database connection
     await sql.end();
-    console.log('👋 Database connection closed. Script finished.');
+    console.log('Database connection closed. Script finished.');
   }
 }
 
-// Run the script
 populateDailyPuzzles();

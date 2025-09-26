@@ -15,6 +15,7 @@ function App() {
   const [guessHistory, setGuessHistory] = useState([]);
   const [shareText, setShareText] = useState('Share');
   const [isIncorrect, setIsIncorrect] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchPuzzle = async () => {
@@ -71,6 +72,7 @@ function App() {
         setGuessHistory([...guessHistory, '❌']);
         setIsIncorrect(true);
         setTimeout(() => setIsIncorrect(false), 500); // Duration must match the CSS animation
+        
 		if (currentGuess < hints.length) {
           setCurrentGuess(currentGuess + 1);
         } else {
@@ -80,6 +82,7 @@ function App() {
       }
 
 	  setSelectedMovie(null);
+    setSearchQuery('');
     }
   };
 
@@ -132,7 +135,10 @@ function App() {
         })}
         {gameStatus === 'playing' && (
           <>
-            <MovieSearch onSelectMovie={handleMovieSelection} />
+            <MovieSearch
+              query={searchQuery}
+              setQuery={setSearchQuery}
+              onSelectMovie={handleMovieSelection} />
 
             <div className="button-group">
               <button className="skip-button" onClick={handleSkip}>Skip</button>

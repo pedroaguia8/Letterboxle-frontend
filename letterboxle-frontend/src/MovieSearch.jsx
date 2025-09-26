@@ -2,8 +2,7 @@ import { useState, useRef } from 'react';
 
 const debounceTimeout = 500;
 
-function MovieSearch({ onSelectMovie }) {
-    const [query, setQuery] = useState('');
+function MovieSearch({ query, setQuery, onSelectMovie }) {
     const [suggestions, setSuggestions] = useState([]);
     // a ref doesn't cause the page to reload when it changes
     const timeoutRef = useRef(null);

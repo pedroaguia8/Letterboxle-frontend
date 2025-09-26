@@ -10,6 +10,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [correctMovieName, setCorrectMovieName] = useState();
   const [correctMovieYear, setCorrectMovieYear] = useState();
+  const [posterUrl, setPosterUrl] = useState(null);
   const [hints, setHints] = useState([]);
   const [puzzleDate, setPuzzleDate] = useState('');
   const [guessHistory, setGuessHistory] = useState([]);
@@ -26,6 +27,7 @@ function App() {
         setCorrectMovieName(data.title);
         setCorrectMovieYear(data.year);
         setHints(data.hints);
+        setPosterUrl(data.posterUrl);
       } catch (error) {
         console.error("Failed to fetch daily puzzle:", error);
       }
@@ -169,12 +171,14 @@ function App() {
         {gameStatus === 'won' && (
           <>
             <h2>You Won in {currentGuess} Guesses!</h2>
+            {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
             <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
           </>
         )}
         {gameStatus === 'lost' && (
           <>
             <h2>Nice Try!</h2>
+            {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
             <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
           </>
         )}

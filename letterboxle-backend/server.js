@@ -3,10 +3,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const sql = require('./db.js');
-
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3012;
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 app.use(cors());
 
@@ -17,13 +18,15 @@ app.get('/api/daily-puzzle', async (req, res) => {
 
     const puzzles = await sql`
       SELECT
+        m.id,
         m.title,
         m.year,
         m.tagline,
         m.genres,
         m.director,
         m.actor1,
-        m.actor2
+        m.actor2,
+        m.poster_url
       FROM
         daily_puzzle dp
       JOIN
@@ -38,11 +41,56 @@ app.get('/api/daily-puzzle', async (req, res) => {
 
     const puzzleFromDb = puzzles[0];
 
+    // Check if the poster URL is NULL. We check for NULL specifically.
+    // An empty string '' means we've already checked and found nothing.
+    if (puzzleFromDb.poster_url === null) {
+      console.log(`Poster URL not found for "${puzzleFromDb.title}". Fetching from TMDB...`);
+      try {
+        // If not, fetch from TMDB
+        const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(puzzleFromDb.title)}&year=${puzzleFromDb.year}`;
+        const tmdbResponse = await fetch(searchUrl);
+        const tmdbData = await tmdbResponse.json();
+
+        let urlToSave = ''; 
+
+        if (tmdbData.results && tmdbData.results.length > 0) {
+          const posterPath = tmdbData.results[0].poster_path;
+          if (posterPath) {
+            // If we find a poster, update urlToSave with the full URL.
+            urlToSave = `https://image.tmdb.org/t/p/w500${posterPath}`;
+          }
+        }
+        
+        // 2. ALWAYS update the database.
+        // It will save the URL or the empty string placeholder.
+        await sql`
+          UPDATE movies
+          SET poster_url = ${urlToSave}
+          WHERE id = ${puzzleFromDb.id}
+        `;
+
+        // 3. Update our current object to send the correct value in the response.
+        puzzleFromDb.poster_url = urlToSave;
+        
+        if (urlToSave) {
+            console.log(`✅ Successfully fetched and saved poster URL.`);
+        } else {
+            console.log(`✔️ No poster found. Saved empty placeholder to prevent re-fetching.`);
+        }
+
+      } catch (tmdbError) {
+        console.error('Failed to fetch from TMDB or update DB:', tmdbError);
+      }
+    } else {
+      console.log(`🚀 Found cached poster URL for "${puzzleFromDb.title}" in DB.`);
+    }
+
     // Format the database data into the structure the frontend expects
     const formattedPuzzle = {
       date: today,
       title: puzzleFromDb.title,
       year: puzzleFromDb.year,
+      posterUrl: puzzleFromDb.poster_url,
       hints: [
         { label: "Tagline", value: puzzleFromDb.tagline },
         { label: "Genres", value: puzzleFromDb.genres },

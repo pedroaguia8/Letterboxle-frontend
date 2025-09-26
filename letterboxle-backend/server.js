@@ -73,9 +73,9 @@ app.get('/api/daily-puzzle', async (req, res) => {
         puzzleFromDb.poster_url = urlToSave;
         
         if (urlToSave) {
-            console.log(`✅ Successfully fetched and saved poster URL.`);
+            console.log(`Successfully fetched and saved poster URL.`);
         } else {
-            console.log(`✔️ No poster found. Saved empty placeholder to prevent re-fetching.`);
+            console.log(`No poster found. Saved empty placeholder to prevent re-fetching.`);
         }
 
       } catch (tmdbError) {

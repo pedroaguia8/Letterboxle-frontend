@@ -13,6 +13,8 @@ app.use(cors());
 
 // Endpoint to get the hints for the daily movie
 app.get('/api/daily-puzzle', async (req, res) => {
+  console.log('Verifying API Key used by server:', process.env.TMDB_API_KEY);
+
   try {
     const today = new Date().toISOString().split('T')[0]; // e.g., "2025-09-25"
 
@@ -46,10 +48,32 @@ app.get('/api/daily-puzzle', async (req, res) => {
     if (puzzleFromDb.poster_url === null) {
       console.log(`Poster URL not found for "${puzzleFromDb.title}". Fetching from TMDB...`);
       try {
+        console.log('--- Debugging TMDB Fetch ---');
+        console.log(`Raw Title: "${puzzleFromDb.title}" (Length: ${puzzleFromDb.title.length})`);
+        console.log('--------------------------');
+
         // If not, fetch from TMDB
-        const searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(puzzleFromDb.title)}&year=${puzzleFromDb.year}`;
-        const tmdbResponse = await fetch(searchUrl);
+        const searchUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(puzzleFromDb.title)}&year=${puzzleFromDb.year}`;
+
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${TMDB_API_KEY}` // Use your env variable here
+          }
+        };
+
+        const tmdbResponse = await fetch(searchUrl, options);
+
+        console.log('--- [2] Received TMDB Response ---');
+        console.log(`HTTP Status: ${tmdbResponse.status} ${tmdbResponse.statusText}`);
+        console.log('------------------------------------');
+
         const tmdbData = await tmdbResponse.json();
+
+        console.log('--- [3] Full TMDB Response Body ---');
+        console.log(JSON.stringify(tmdbData, null, 2));
+        console.log('-----------------------------------');
 
         let urlToSave = ''; 
 
@@ -82,7 +106,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
         console.error('Failed to fetch from TMDB or update DB:', tmdbError);
       }
     } else {
-      console.log(`🚀 Found cached poster URL for "${puzzleFromDb.title}" in DB.`);
+      console.log(`Found cached poster URL for "${puzzleFromDb.title}" in DB.`);
     }
 
     // Format the database data into the structure the frontend expects

@@ -48,10 +48,6 @@ app.get('/api/daily-puzzle', async (req, res) => {
     if (puzzleFromDb.poster_url === null) {
       console.log(`Poster URL not found for "${puzzleFromDb.title}". Fetching from TMDB...`);
       try {
-        console.log('--- Debugging TMDB Fetch ---');
-        console.log(`Raw Title: "${puzzleFromDb.title}" (Length: ${puzzleFromDb.title.length})`);
-        console.log('--------------------------');
-
         // If not, fetch from TMDB
         const searchUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(puzzleFromDb.title)}&year=${puzzleFromDb.year}`;
 
@@ -64,16 +60,7 @@ app.get('/api/daily-puzzle', async (req, res) => {
         };
 
         const tmdbResponse = await fetch(searchUrl, options);
-
-        console.log('--- [2] Received TMDB Response ---');
-        console.log(`HTTP Status: ${tmdbResponse.status} ${tmdbResponse.statusText}`);
-        console.log('------------------------------------');
-
         const tmdbData = await tmdbResponse.json();
-
-        console.log('--- [3] Full TMDB Response Body ---');
-        console.log(JSON.stringify(tmdbData, null, 2));
-        console.log('-----------------------------------');
 
         let urlToSave = ''; 
 

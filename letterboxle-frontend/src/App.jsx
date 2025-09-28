@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Confetti from 'react-confetti-boom';
 import './App.css'
 import MovieSearch from './MovieSearch';
 import Modal from './Modal';
@@ -116,6 +117,17 @@ function App() {
 
   return (
     <>
+      {gameStatus === 'won' && (
+        // Envolvemos o Confetti numa div para aplicar o estilo
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 9999, pointerEvents: 'none' }}>
+          <Confetti
+            mode="boom"
+            particleCount={70}
+            spreadDeg={100}
+            // launchSpeed={5}
+          />
+        </div>
+      )}
       <div className="app">
         <header className="header">
           <h1>🎬 Letterboxle 🍿</h1>

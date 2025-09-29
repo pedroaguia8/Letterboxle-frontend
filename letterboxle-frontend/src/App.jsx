@@ -122,7 +122,6 @@ function App() {
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 9999, pointerEvents: 'none' }}>
           <Confetti
             mode="boom"
-            particleCount={70}
             spreadDeg={100}
             // launchSpeed={5}
           />
@@ -132,6 +131,7 @@ function App() {
         <header className="header">
           <h1>🎬 Letterboxle 🍿</h1>
           {puzzleDate && <p className="puzzle-date">{formattedDate()}</p>}
+          <p>Guess today's movie!</p>
         </header>
       </div>
 

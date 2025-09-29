@@ -128,11 +128,11 @@ app.get('/api/search-movies', async (req, res) => {
   }
 
   try {
-    // Search the 'movies' table for titles that match the query
-    // ILIKE is a case-insensitive version of LIKE
+    const searchPattern = '%' + query.trim().split(/\s+/).join('%') + '%';
+    
     const movies = await sql`
       SELECT title, year FROM movies
-      WHERE title ILIKE ${'%' + query + '%'}
+      WHERE title ILIKE ${'%' + searchPattern + '%'}
       LIMIT 12
     `;
 

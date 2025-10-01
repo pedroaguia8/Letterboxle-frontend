@@ -175,29 +175,28 @@ function App() {
               </button>
             </div>
           )}
-
-          <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-            {gameStatus === 'won' && (
-              <>
-                <h2>You Won in {currentGuess} Guesses!</h2>
-                {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
-                <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
-              </>
-            )}
-            {gameStatus === 'lost' && (
-              <>
-                <h2>Nice Try!</h2>
-                {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
-                <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
-              </>
-            )}
-            {(gameStatus === 'won' || gameStatus === 'lost') && (
-              <button className="share-button" onClick={handleShare}>
-                {shareText}
-              </button>
-            )}
-          </Modal>
         </main>
+        <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+          {gameStatus === 'won' && (
+            <>
+              <h2>You Won in {currentGuess} Guesses!</h2>
+              {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
+              <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
+            </>
+          )}
+          {gameStatus === 'lost' && (
+            <>
+              <h2>Nice Try!</h2>
+              {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
+              <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
+            </>
+          )}
+          {(gameStatus === 'won' || gameStatus === 'lost') && (
+            <button className="share-button" onClick={handleShare}>
+              {shareText}
+            </button>
+          )}
+        </Modal>
       </div>
     </>
   )

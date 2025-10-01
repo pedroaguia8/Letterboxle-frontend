@@ -133,73 +133,72 @@ function App() {
           {puzzleDate && <p className="puzzle-date">{formattedDate()}</p>}
           <p>Guess today's movie!</p>
         </header>
-      </div>
 
-      <main className={`grid ${isIncorrect ? 'shake' : ''}`}>
-        {hints.map((hint, index) => {
-          const guessNumber = index + 1;
-          const isRevealed = guessNumber <= currentGuess || gameStatus !== 'playing';
+        <main className={`grid ${isIncorrect ? 'shake' : ''}`}>
+          {hints.map((hint, index) => {
+            const guessNumber = index + 1;
+            const isRevealed = guessNumber <= currentGuess || gameStatus !== 'playing';
 
-          return (
-            <div className='guess-row' key={index}>
-              {isRevealed && <p className='hint-label'>{hint.label}:</p>}
-              {isRevealed && <p className="hint-value">{hint.value}</p>}
-            </div>
-          );  
-        })}
-        {gameStatus === 'playing' && (
-          <>
-            <MovieSearch
-              query={searchQuery}
-              setQuery={setSearchQuery}
-              onSelectMovie={handleMovieSelection} />
+            return (
+              <div className='guess-row' key={index}>
+                {isRevealed && <p className='hint-label'>{hint.label}:</p>}
+                {isRevealed && <p className="hint-value">{hint.value}</p>}
+              </div>
+            );  
+          })}
+          {gameStatus === 'playing' && (
+            <>
+              <MovieSearch
+                query={searchQuery}
+                setQuery={setSearchQuery}
+                onSelectMovie={handleMovieSelection} />
 
-            <div className="button-group">
-              <button className="skip-button" onClick={handleSkip}>Skip</button>
-              <button
-                className="submit-button"
-                onClick={handleSubmit}
-                disabled={!selectedMovie}
+              <div className="button-group">
+                <button className="skip-button" onClick={handleSkip}>Skip</button>
+                <button
+                  className="submit-button"
+                  onClick={handleSubmit}
+                  disabled={!selectedMovie}
+                >
+                  Submit
+                </button>
+              </div>
+            </>
+          )}
+          {gameStatus !== 'playing' && !isModalOpen && (
+            <div className="show-score-container">
+              <button 
+                className="show-score-button" 
+                onClick={() => setIsModalOpen(true)}
               >
-                Submit
+                Show your score
               </button>
             </div>
-          </>
-        )}
-      </main>
+          )}
 
-      {gameStatus !== 'playing' && !isModalOpen && (
-        <div className="show-score-container">
-          <button 
-            className="show-score-button" 
-            onClick={() => setIsModalOpen(true)}
-          >
-            Show your score
-          </button>
-        </div>
-      )}
-
-	  <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        {gameStatus === 'won' && (
-          <>
-            <h2>You Won in {currentGuess} Guesses!</h2>
-            {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
-            <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
-          </>
-        )}
-        {gameStatus === 'lost' && (
-          <>
-            <h2>Nice Try!</h2>
-            {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
-            <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
-          </>
-        )}
-        {(gameStatus === 'won' || gameStatus === 'lost') && (
-          <button className="share-button" onClick={handleShare}>
-            {shareText}
-          </button>
-        )}
-      </Modal>
+          <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+            {gameStatus === 'won' && (
+              <>
+                <h2>You Won in {currentGuess} Guesses!</h2>
+                {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
+                <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
+              </>
+            )}
+            {gameStatus === 'lost' && (
+              <>
+                <h2>Nice Try!</h2>
+                {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
+                <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
+              </>
+            )}
+            {(gameStatus === 'won' || gameStatus === 'lost') && (
+              <button className="share-button" onClick={handleShare}>
+                {shareText}
+              </button>
+            )}
+          </Modal>
+        </main>
+      </div>
     </>
   )
 }

@@ -1,3 +1,6 @@
+
+
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -190,23 +193,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-
-
-@media (max-width: 600px) {
-  #root {
-    padding: 1rem; /* Reduce overall padding on small screens */
-  }
-
-  .header {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .header h1 {
-    font-size: 2.2rem; /* Make the main title a bit smaller */
-  }
-}
-
 .shake {
   animation: shake 0.5s ease-in-out; /* Duration must match the incorrect answer state timeout */
 }
@@ -225,3 +211,41 @@
     transform: translateX(4px);
   }
 }
+
+@media (max-width: 600px) {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  #root {
+    padding: 1rem; /* Reduce overall padding on small screens */
+  }
+
+  .header {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .header h1 {
+    font-size: 2.2rem; /* Make the main title a bit smaller */
+  }
+
+  /* Make the app container fill the mobile screen's height */
+  .app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Allow the main grid of hints to grow and scroll if it overflows */
+  main.grid {
+    flex-grow: 1;
+    overflow-y: auto; /* Adds scrolling ONLY if needed */
+  }
+
+  /* Reduce the height of the suggestions list to prevent it from being cut off */
+  .suggestions-list {
+    max-height: 110px;
+  }
+}
+

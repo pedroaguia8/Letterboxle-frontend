@@ -22,13 +22,21 @@ function App() {
   useEffect(() => {
     const fetchPuzzle = async () => {
       try {
-        const response = await fetch('/api/daily-puzzle');
+        const response = await fetch('/api/movie_of_the_day/today');
         const data = await response.json();
         setPuzzleDate(data.date); 
         setCorrectMovieName(data.title);
         setCorrectMovieYear(data.year);
-        setHints(data.hints);
-        setPosterUrl(data.posterUrl);
+        setPosterUrl(data.poster_url);
+        const newHints = [
+          { label: 'Tagline', value: data.tagline },
+          { label: 'Genre', value: data.genres },
+          { label: 'Director', value: data.director },
+          { label: 'Actor 1', value: data.actor1 },
+          { label: 'Actor 2', value: data.actor2 },
+          { label: 'Year', value: data.year },
+        ];
+        setHints(newHints);
       } catch (error) {
         console.error("Failed to fetch daily puzzle:", error);
       }
@@ -66,7 +74,7 @@ function App() {
 
   const handleSubmit = () => {
     if (selectedMovie) {
-      if (selectedMovie.name === correctMovieName 
+      if (selectedMovie.title === correctMovieName 
 				&& selectedMovie.year === correctMovieYear) {
           setGuessHistory([...guessHistory, '🟩']);
           setGameStatus('won');

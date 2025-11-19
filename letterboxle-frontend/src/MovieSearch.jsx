@@ -23,7 +23,7 @@ function MovieSearch({ query, setQuery, onSelectMovie }) {
         timeoutRef.current = setTimeout(async () => {
             if (newQuery.length > 0) {
                 try {
-                    const response = await fetch(`/api/search-movies?query=${encodeURIComponent(newQuery)}`);
+                    const response = await fetch(`/api/movies?search_query=${encodeURIComponent(newQuery)}`);
                     const data = await response.json();
                     setSuggestions(data);
                 } catch (error) {
@@ -37,7 +37,7 @@ function MovieSearch({ query, setQuery, onSelectMovie }) {
     }
 
     const handleSelect = (movie) => {
-        setQuery(`${movie.name} (${movie.year})`);
+        setQuery(`${movie.title} (${movie.year})`);
         // When a user clicks a suggestion, we pass it up to the parent component
         onSelectMovie(movie);
         // Clear the suggestions after selection
@@ -56,8 +56,8 @@ function MovieSearch({ query, setQuery, onSelectMovie }) {
             {suggestions.length > 0 && (
                 <ul className="suggestions-list">
                 {suggestions.map((movie) => (
-                    <li key={`${movie.name}-${movie.year}`} onClick={() => handleSelect(movie)}>
-                    {movie.name} ({movie.year})
+                    <li key={`${movie.title}-${movie.year}`} onClick={() => handleSelect(movie)}>
+                    {movie.title} ({movie.year})
                     </li>
                 ))}
                 </ul>

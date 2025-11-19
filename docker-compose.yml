@@ -1,17 +1,4 @@
 services:
-  backend:
-    build:
-      context: ./letterboxle-backend
-    container_name: letterboxle-backend
-    restart: unless-stopped
-    # If your backend needs environment variables (e.g., for db.js),
-    # you can add them here.
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      # - PORT=3000
-    networks:
-      - npm
-
   frontend:
     build:
       context: ./letterboxle-frontend

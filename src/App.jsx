@@ -19,6 +19,7 @@ function App() {
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [movieList, setMovieList] = useState([]);
+  const [isMovieListReady, setIsMovieListReady] = useState(false);
 
   useEffect(() => {
     const fetchPuzzle = async () => {
@@ -51,6 +52,7 @@ function App() {
         const response = await fetch('/api/movies');
         const data = await response.json();
         setMovieList(data);
+        setIsMovieListReady(true);
       } catch (error) {
         console.error("Failed to fetch movie list:", error);
       }
@@ -174,6 +176,7 @@ function App() {
                 query={searchQuery}
                 setQuery={setSearchQuery}
                 movieList={movieList}
+                isMovieListReady={isMovieListReady}
                 onSelectMovie={handleMovieSelection} />
 
               <div className="button-group">

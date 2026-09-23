@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 
 const debounceTimeout = 500;
 
-function MovieSearch({ query, setQuery, movieList, onSelectMovie }) {
+function MovieSearch({ query, setQuery, movieList, isMovieListReady, onSelectMovie }) {
     const [suggestions, setSuggestions] = useState([]);
     // a ref doesn't cause the page to reload when it changes
     const timeoutRef = useRef(null);
@@ -46,11 +46,12 @@ function MovieSearch({ query, setQuery, movieList, onSelectMovie }) {
                 value={query}
                 onChange={handleSearchChange}
                 placeholder="Enter your guess"
+                disabled={!isMovieListReady}
             />
             {suggestions.length > 0 && (
                 <ul className="suggestions-list">
                 {suggestions.map((movie) => (
-                    <li key={`${movie.title}-${movie.year}`} onClick={() => handleSelect(movie)}>
+                    <li key={movie.id} onClick={() => handleSelect(movie)}>
                     {movie.title} ({movie.year})
                     </li>
                 ))}

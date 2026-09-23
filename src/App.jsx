@@ -18,13 +18,14 @@ function App() {
   const [shareText, setShareText] = useState('Share');
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [movieList, setMovieList] = useState([]);
 
   useEffect(() => {
     const fetchPuzzle = async () => {
       try {
         const response = await fetch('/api/movie_of_the_day/today');
         const data = await response.json();
-        setPuzzleDate(data.date); 
+        setPuzzleDate(data.date);
         setCorrectMovieName(data.title);
         setCorrectMovieYear(data.year);
         setPosterUrl(data.poster_url);
@@ -42,6 +43,19 @@ function App() {
       }
     };
     fetchPuzzle();
+  }, []);
+
+  useEffect(() => {
+    const fetchMovieList = async () => {
+      try {
+        const response = await fetch('/api/movies');
+        const data = await response.json();
+        setMovieList(data);
+      } catch (error) {
+        console.error("Failed to fetch movie list:", error);
+      }
+    };
+    fetchMovieList();
   }, []);
 
   const formattedDate = () => {
@@ -159,6 +173,7 @@ function App() {
               <MovieSearch
                 query={searchQuery}
                 setQuery={setSearchQuery}
+                movieList={movieList}
                 onSelectMovie={handleMovieSelection} />
 
               <div className="button-group">

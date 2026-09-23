@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 
 const debounceTimeout = 500;
 
-function MovieSearch({ query, setQuery, onSelectMovie }) {
+function MovieSearch({ query, setQuery, movieList, onSelectMovie }) {
     const [suggestions, setSuggestions] = useState([]);
     // a ref doesn't cause the page to reload when it changes
     const timeoutRef = useRef(null);
@@ -20,16 +20,10 @@ function MovieSearch({ query, setQuery, onSelectMovie }) {
         }
 
         // Set a new timeout that will run after the value of debounceTimeout ms.
-        timeoutRef.current = setTimeout(async () => {
+        timeoutRef.current = setTimeout(() => {
             if (newQuery.length > 0) {
-                try {
-                    const response = await fetch(`/api/movies?search_query=${encodeURIComponent(newQuery)}`);
-                    const data = await response.json();
-                    setSuggestions(data);
-                } catch (error) {
-                    console.error("Failed to fetch movie suggestions:", error);
-                    setSuggestions([]);
-                }
+                const lowerQuery = newQuery.toLowerCase();
+                setSuggestions(movieList.filter((movie) => movie.title.toLowerCase().includes(lowerQuery)));
             } else {
                 setSuggestions([]);
             }

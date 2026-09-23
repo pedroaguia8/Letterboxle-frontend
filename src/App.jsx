@@ -9,6 +9,7 @@ function App() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [gameStatus, setGameStatus] = useState('playing');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [correctMovieId, setCorrectMovieId] = useState();
   const [correctMovieName, setCorrectMovieName] = useState();
   const [correctMovieYear, setCorrectMovieYear] = useState();
   const [posterUrl, setPosterUrl] = useState(null);
@@ -27,6 +28,7 @@ function App() {
         const response = await fetch('/api/movie_of_the_day/today');
         const data = await response.json();
         setPuzzleDate(data.date);
+        setCorrectMovieId(data.id);
         setCorrectMovieName(data.title);
         setCorrectMovieYear(data.year);
         setPosterUrl(data.poster_url);
@@ -90,8 +92,7 @@ function App() {
 
   const handleSubmit = () => {
     if (selectedMovie) {
-      if (selectedMovie.title === correctMovieName 
-				&& selectedMovie.year === correctMovieYear) {
+      if (selectedMovie.id === correctMovieId) {
           setGuessHistory([...guessHistory, '🟩']);
           setGameStatus('won');
           setIsModalOpen(true);

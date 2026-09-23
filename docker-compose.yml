@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      context: ./letterboxle-frontend
+      context: .
     container_name: letterboxle-frontend
     restart: unless-stopped
     networks:

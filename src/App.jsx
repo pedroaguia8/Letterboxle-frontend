@@ -21,44 +21,60 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [movieList, setMovieList] = useState([]);
   const [isMovieListReady, setIsMovieListReady] = useState(false);
+  const [puzzleError, setPuzzleError] = useState(false);
+  const [movieListError, setMovieListError] = useState(false);
+  const [isPuzzleRetrying, setIsPuzzleRetrying] = useState(false);
+  const [isMovieListRetrying, setIsMovieListRetrying] = useState(false);
+
+  const fetchPuzzle = async () => {
+    setIsPuzzleRetrying(true);
+    try {
+      const response = await fetch('/api/movie_of_the_day/today');
+      const data = await response.json();
+      setPuzzleDate(data.date);
+      setCorrectMovieId(data.id);
+      setCorrectMovieName(data.title);
+      setCorrectMovieYear(data.year);
+      setPosterUrl(data.poster_url);
+      const newHints = [
+        { label: 'Tagline', value: data.tagline },
+        { label: 'Genre', value: data.genres },
+        { label: 'Director', value: data.director },
+        { label: 'Actor 1', value: data.actor1 },
+        { label: 'Actor 2', value: data.actor2 },
+        { label: 'Year', value: data.year },
+      ];
+      setHints(newHints);
+      setPuzzleError(false);
+    } catch (error) {
+      console.error("Failed to fetch daily puzzle:", error);
+      setPuzzleError(true);
+    } finally {
+      setIsPuzzleRetrying(false);
+    }
+  };
+
+  const fetchMovieList = async () => {
+    setIsMovieListRetrying(true);
+    try {
+      const response = await fetch('/api/movies');
+      const data = await response.json();
+      setMovieList(data);
+      setIsMovieListReady(true);
+      setMovieListError(false);
+    } catch (error) {
+      console.error("Failed to fetch movie list:", error);
+      setMovieListError(true);
+    } finally {
+      setIsMovieListRetrying(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPuzzle = async () => {
-      try {
-        const response = await fetch('/api/movie_of_the_day/today');
-        const data = await response.json();
-        setPuzzleDate(data.date);
-        setCorrectMovieId(data.id);
-        setCorrectMovieName(data.title);
-        setCorrectMovieYear(data.year);
-        setPosterUrl(data.poster_url);
-        const newHints = [
-          { label: 'Tagline', value: data.tagline },
-          { label: 'Genre', value: data.genres },
-          { label: 'Director', value: data.director },
-          { label: 'Actor 1', value: data.actor1 },
-          { label: 'Actor 2', value: data.actor2 },
-          { label: 'Year', value: data.year },
-        ];
-        setHints(newHints);
-      } catch (error) {
-        console.error("Failed to fetch daily puzzle:", error);
-      }
-    };
     fetchPuzzle();
   }, []);
 
   useEffect(() => {
-    const fetchMovieList = async () => {
-      try {
-        const response = await fetch('/api/movies');
-        const data = await response.json();
-        setMovieList(data);
-        setIsMovieListReady(true);
-      } catch (error) {
-        console.error("Failed to fetch movie list:", error);
-      }
-    };
     fetchMovieList();
   }, []);
 
@@ -160,47 +176,67 @@ function App() {
         </header>
 
         <main className={`grid ${isIncorrect ? 'shake' : ''}`}>
-          {hints.map((hint, index) => {
-            const guessNumber = index + 1;
-            const isRevealed = guessNumber <= currentGuess || gameStatus !== 'playing';
-
-            return (
-              <div className='guess-row' key={index}>
-                {isRevealed && <p className='hint-label'>{hint.label}:</p>}
-                {isRevealed && <p className="hint-value">{hint.value}</p>}
-              </div>
-            );  
-          })}
-          {gameStatus === 'playing' && (
-            <>
-              <MovieSearch
-                query={searchQuery}
-                setQuery={setSearchQuery}
-                movieList={movieList}
-                isMovieListReady={isMovieListReady}
-                onSelectMovie={handleMovieSelection} />
-
-              <div className="button-group">
-                <button className="skip-button" onClick={handleSkip}>Skip</button>
-                <button
-                  className="submit-button"
-                  onClick={handleSubmit}
-                  disabled={!selectedMovie}
-                >
-                  Submit
-                </button>
-              </div>
-            </>
-          )}
-          {gameStatus !== 'playing' && !isModalOpen && (
-            <div className="show-score-container">
-              <button 
-                className="show-score-button" 
-                onClick={() => setIsModalOpen(true)}
-              >
-                Show your score
+          {puzzleError ? (
+            <div className="fetch-error">
+              <p>Couldn't load today's puzzle.</p>
+              <button className="skip-button" onClick={fetchPuzzle} disabled={isPuzzleRetrying}>
+                {isPuzzleRetrying ? 'Retrying…' : 'Retry'}
               </button>
             </div>
+          ) : (
+            <>
+              {hints.map((hint, index) => {
+                const guessNumber = index + 1;
+                const isRevealed = guessNumber <= currentGuess || gameStatus !== 'playing';
+
+                return (
+                  <div className='guess-row' key={index}>
+                    {isRevealed && <p className='hint-label'>{hint.label}:</p>}
+                    {isRevealed && <p className="hint-value">{hint.value}</p>}
+                  </div>
+                );
+              })}
+              {gameStatus === 'playing' && (
+                <>
+                  {movieListError ? (
+                    <div className="fetch-error">
+                      <p>Couldn't load movie list.</p>
+                      <button className="skip-button" onClick={fetchMovieList} disabled={isMovieListRetrying}>
+                        {isMovieListRetrying ? 'Retrying…' : 'Retry'}
+                      </button>
+                    </div>
+                  ) : (
+                    <MovieSearch
+                      query={searchQuery}
+                      setQuery={setSearchQuery}
+                      movieList={movieList}
+                      isMovieListReady={isMovieListReady}
+                      onSelectMovie={handleMovieSelection} />
+                  )}
+
+                  <div className="button-group">
+                    <button className="skip-button" onClick={handleSkip}>Skip</button>
+                    <button
+                      className="submit-button"
+                      onClick={handleSubmit}
+                      disabled={!selectedMovie}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </>
+              )}
+              {gameStatus !== 'playing' && !isModalOpen && (
+                <div className="show-score-container">
+                  <button
+                    className="show-score-button"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    Show your score
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </main>
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>

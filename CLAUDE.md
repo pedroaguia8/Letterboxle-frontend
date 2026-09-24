@@ -15,7 +15,7 @@ Letterboxle is a Wordle-style daily movie-guessing game, live at letterboxle.ped
 - `npm test`: run the Vitest unit tests once (`npx vitest` for watch mode)
 - `npx vitest run src/movieMatching.test.js -t "ranking"`: run a single test file or a single test by name
 
-Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`src/movieMatching.js`). There are no component tests. This repo has no CI, so run lint and tests locally.
+Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`src/movieMatching.js`). There are no component tests. CI runs lint, tests and the build (see CI/CD).
 
 ## Architecture
 
@@ -35,4 +35,8 @@ Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`sr
 
 - `Dockerfile` is a two-stage build: Node builds the Vite app, then an `nginx:stable-alpine` image serves `dist/`.
 - `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network, behind an existing `nginx-proxy-manager`. As in the backend, don't run it locally: the `npm` network only exists on the prod host.
-- `deploy.sh` rebuilds the image with `--no-cache`, brings the compose stack up, and restarts `nginx-proxy-manager`. It's run by hand on the deployment host. Unlike the backend, there's no CD pipeline.
+
+## CI/CD
+
+- `ci.yml`: on PR/push to `main`, runs tests and the build in one job, and lint in a separate job. Both use `npm ci` on Node 22.
+- `cd.yml`: triggers when the `ci` workflow completes successfully on `main` (not directly on push). It SSHes into the prod host through a cloudflared tunnel, runs `git pull` in `~/Letterboxle-frontend`, rebuilds the image with `docker compose build --no-cache` (deliberately uncached, because cached builds caused bugs before), brings the stack up, and restarts `nginx-proxy-manager`. It uses the same `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY` and `SSH_KNOWN_HOSTS` secrets as the backend. The frontend needs no app secrets.

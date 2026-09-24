@@ -30,6 +30,9 @@ function App() {
     setIsPuzzleRetrying(true);
     try {
       const response = await fetch('/api/movie_of_the_day/today');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch daily puzzle: ${response.status}`);
+      }
       const data = await response.json();
       setPuzzleDate(data.date);
       setCorrectMovieId(data.id);
@@ -58,6 +61,9 @@ function App() {
     setIsMovieListRetrying(true);
     try {
       const response = await fetch('/api/movies');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch movie list: ${response.status}`);
+      }
       const data = await response.json();
       setMovieList(data);
       setIsMovieListReady(true);

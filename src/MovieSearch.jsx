@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { findSuggestions } from './movieMatching';
 
 const debounceTimeout = 500;
 
@@ -21,12 +22,7 @@ function MovieSearch({ query, setQuery, movieList, isMovieListReady, onSelectMov
 
         // Set a new timeout that will run after the value of debounceTimeout ms.
         timeoutRef.current = setTimeout(() => {
-            if (newQuery.length > 0) {
-                const lowerQuery = newQuery.toLowerCase();
-                setSuggestions(movieList.filter((movie) => movie.title.toLowerCase().includes(lowerQuery)));
-            } else {
-                setSuggestions([]);
-            }
+            setSuggestions(findSuggestions(movieList, newQuery));
         }, debounceTimeout);
     }
 

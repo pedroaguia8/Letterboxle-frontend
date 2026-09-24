@@ -4,28 +4,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Letterboxle is a Wordle-style daily movie-guessing game. This repo is the React frontend only — the backend (Go, consumed via a REST API) lives in a separate repository and is not present here.
+Letterboxle is a Wordle-style daily movie-guessing game, live at letterboxle.pedroaguia8.dev. This repo is the React frontend only. The Go backend is in a separate repository (usually checked out next to this one as `../Letterboxle-backend`), and it owns the API contract.
 
 ## Commands
 
-- `npm run dev` — start the Vite dev server
-- `npm run build` — production build to `dist/`
-- `npm run lint` — run ESLint over the project
-- `npm run preview` — serve the production build locally
-- `npm test` — run the Vitest unit tests once (`npx vitest` for watch mode)
+- `npm run dev`: start the Vite dev server
+- `npm run build`: production build to `dist/`
+- `npm run lint`: run ESLint over the project
+- `npm run preview`: serve the production build locally
+- `npm test`: run the Vitest unit tests once (`npx vitest` for watch mode)
+- `npx vitest run src/movieMatching.test.js -t "ranking"`: run a single test file or a single test by name
 
-Tests live next to the code as `*.test.js`. Only pure logic is tested so far (`src/movieMatching.js`); there are no component tests.
+Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`src/movieMatching.js`). There are no component tests. This repo has no CI, so run lint and tests locally.
 
 ## Architecture
 
-- Single-page app, no router, no state management library — all game state lives in `useState` hooks in `src/App.jsx`.
-- `src/App.jsx` owns the entire game flow: fetches the daily puzzle, tracks the current guess index, guess history, win/loss status, and builds the shareable result text (copied to clipboard, Wordle-style emoji grid).
-- `src/MovieSearch.jsx` is a debounced (500ms) autocomplete input that filters the movie list fetched by `App.jsx` and reports the selected movie back up via `onSelectMovie`. The matching and ranking of suggestions lives in `src/movieMatching.js`.
-- `src/Modal.jsx` is a generic presentational modal (open/close/children) used for the end-of-game summary.
-- API calls go through relative `/api/...` paths (`/api/movie_of_the_day/today`, `/api/movies?search_query=...`). In dev, `vite.config.js` proxies `/api` to `http://localhost:8080` (the Go backend must be running locally for `npm run dev` to work end-to-end). In production, Nginx serves the built static files directly (see `nginx.conf`) and `/api` is expected to be routed to the backend by the surrounding infra (reverse proxy), not by this repo.
+- Single-page app with no router and no state-management library. All game state lives in `useState` hooks in `src/App.jsx`. Nothing is saved: a page refresh resets the day's game.
+- `src/App.jsx` runs the whole game flow. On mount it makes two independent fetches, each with its own error and retry UI:
+  - `GET /api/movie_of_the_day/today` returns the answer and its hint fields.
+  - `GET /api/movies` returns the full lightweight `{id, title, year}` list, fetched once and filtered client-side. There's no server-side search.
+- The six hints are built in a fixed order in `fetchPuzzle`: tagline, genre, director, actor 1, actor 2, year. `hints.length` is the maximum number of guesses. Each wrong guess or skip reveals the next hint and adds an emoji to `guessHistory`. That history becomes the Wordle-style share grid that `handleShare` copies to the clipboard.
+- Guesses are checked by movie `id`, not by title. The puzzle date is formatted in UTC to match the backend's UTC day boundary.
+- `src/MovieSearch.jsx` is a debounced (500ms) autocomplete input. Typing clears the current selection (`onSelectMovie(null)`), which keeps Submit disabled until a suggestion is clicked. It shows the year only when two suggestions share a title, because the year is itself a hint.
+- `src/movieMatching.js` (`findSuggestions`) holds the matching and ranking logic. Matching ignores accents and punctuation. Results are ranked in tiers (exact match, title prefix, word prefix, substring), then by shorter title, and capped at `maxSuggestions`. Tiers are ranked before the cap is applied, so an exact match can never be dropped. The test file documents the intended behaviour case by case.
+- `src/Modal.jsx` is a generic presentational modal used for the end-of-game summary.
+- Styling is plain CSS (`index.css`, `App.css`, `Modal.css`). `tailwindcss`, `axios`, `framer-motion` and `lucide-react` are in `package.json` but unused (there's no Tailwind/PostCSS config, and calls use `fetch`).
+- API calls use relative `/api/...` paths. In dev, `vite.config.js` proxies `/api` to `http://localhost:8080`, so the Go backend must be running locally for `npm run dev` to work end-to-end. In production, Nginx serves only the static files (see `nginx.conf`, which has an SPA fallback). The surrounding reverse proxy routes `/api` to the backend, not this repo.
 
 ## Deployment
 
-- `Dockerfile` is a two-stage build: Node builds the Vite app, then an `nginx:stable-alpine` image serves the static `dist/` output. `nginx.conf` does SPA fallback routing (`try_files ... /index.html`).
-- `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network (expects an existing `nginx-proxy-manager` setup fronting it).
-- `deploy.sh` rebuilds the image with `--no-cache`, brings the compose stack up, and restarts `nginx-proxy-manager`. It's meant to be run directly on the deployment host, not in CI.
+- `Dockerfile` is a two-stage build: Node builds the Vite app, then an `nginx:stable-alpine` image serves `dist/`.
+- `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network, behind an existing `nginx-proxy-manager`. As in the backend, don't run it locally: the `npm` network only exists on the prod host.
+- `deploy.sh` rebuilds the image with `--no-cache`, brings the compose stack up, and restarts `nginx-proxy-manager`. It's run by hand on the deployment host. Unlike the backend, there's no CD pipeline.

@@ -41,7 +41,7 @@ function App() {
       setPosterUrl(data.poster_url);
       const newHints = [
         { label: 'Tagline', value: data.tagline },
-        { label: 'Genre', value: data.genres },
+        { label: 'Genre', value: Array.isArray(data.genres) ? data.genres.join(', ') : data.genres },
         { label: 'Director', value: data.director },
         { label: 'Actor 1', value: data.actor1 },
         { label: 'Actor 2', value: data.actor2 },

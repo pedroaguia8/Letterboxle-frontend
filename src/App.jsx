@@ -39,6 +39,8 @@ function App() {
       setCorrectMovieName(data.title);
       setCorrectMovieYear(data.year);
       setPosterUrl(data.poster_url);
+      // Preload so the poster is cached by the time the end-of-game modal shows it
+      new Image().src = data.poster_url;
       const newHints = [
         { label: 'Tagline', value: data.tagline },
         { label: 'Genre', value: Array.isArray(data.genres) ? data.genres.join(', ') : data.genres },
@@ -249,14 +251,14 @@ function App() {
           {gameStatus === 'won' && (
             <>
               <h2>You Won in {currentGuess} Guesses!</h2>
-              {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
+              {posterUrl && <div className="modal-poster-frame"><img src={posterUrl} alt="Movie Poster" className="modal-poster" /></div>}
               <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
             </>
           )}
           {gameStatus === 'lost' && (
             <>
               <h2>Nice Try!</h2>
-              {posterUrl && <img src={posterUrl} alt="Movie Poster" className="modal-poster" />}
+              {posterUrl && <div className="modal-poster-frame"><img src={posterUrl} alt="Movie Poster" className="modal-poster" /></div>}
               <p>The movie was: {correctMovieName} ({correctMovieYear})</p>
             </>
           )}

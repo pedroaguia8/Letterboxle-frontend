@@ -30,8 +30,18 @@ function MovieSearch({ query, setQuery, movieList, isMovieListReady, onSelectMov
         }, debounceTimeout);
     }
 
+    // Only show the year when another suggestion has the same title,
+    // since the year is itself one of the hints
+    const titleCounts = {};
+    suggestions.forEach((movie) => {
+        const key = movie.title.toLowerCase();
+        titleCounts[key] = (titleCounts[key] || 0) + 1;
+    });
+    const formatMovie = (movie) =>
+        titleCounts[movie.title.toLowerCase()] > 1 ? `${movie.title} (${movie.year})` : movie.title;
+
     const handleSelect = (movie) => {
-        setQuery(`${movie.title} (${movie.year})`);
+        setQuery(formatMovie(movie));
         // When a user clicks a suggestion, we pass it up to the parent component
         onSelectMovie(movie);
         // Clear the suggestions after selection
@@ -52,7 +62,7 @@ function MovieSearch({ query, setQuery, movieList, isMovieListReady, onSelectMov
                 <ul className="suggestions-list">
                 {suggestions.map((movie) => (
                     <li key={movie.id} onClick={() => handleSelect(movie)}>
-                    {movie.title} ({movie.year})
+                    {formatMovie(movie)}
                     </li>
                 ))}
                 </ul>

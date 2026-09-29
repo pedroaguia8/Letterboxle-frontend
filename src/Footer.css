@@ -1,0 +1,22 @@
+.site-footer {
+  padding: 1.5rem 0 2rem;
+  text-align: center;
+}
+
+.site-footer nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b6f76;
+}
+
+.site-footer a {
+  color: #8b8b8b;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: #646cff;
+  text-decoration: underline;
+}

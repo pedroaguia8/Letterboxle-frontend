@@ -1,0 +1,22 @@
+# Version Control
+.git
+.gitignore
+
+# Dependencies and build output (npm ci and npm run build recreate them inside the image)
+node_modules/
+dist/
+
+# Docker specific files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment Variables
+.env
+.env.*
+
+# Editor/IDE and Claude Code specifics
+.vscode/
+.idea/
+.claude/
+*.swp

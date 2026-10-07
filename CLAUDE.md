@@ -40,3 +40,10 @@ Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`sr
 
 - `ci.yml`: on PR/push to `main`, runs tests and the build in one job, and lint in a separate job. Both use `npm ci` on Node 22.
 - `cd.yml`: triggers when the `ci` workflow completes successfully on `main` (not directly on push). It SSHes into the prod host through a cloudflared tunnel, runs `git pull` in `~/Letterboxle-frontend`, rebuilds the image with `docker compose build --no-cache` (deliberately uncached, because cached builds caused bugs before), and brings the stack up. (It used to also restart `nginx-proxy-manager`; that was only needed because NPM's `/api` route cached the backend's IP, fixed in NPM's config on 2026-10-06. NPM re-resolves the frontend's container name on its own.) It uses the same `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY` and `SSH_KNOWN_HOSTS` secrets as the backend. The frontend needs no app secrets.
+
+## Git workflow
+
+- `main` is the only long-lived branch. Every change goes on a short-lived branch and into `main` through a PR, never as a direct push. Merging to `main` deploys to prod.
+- Merge PRs with a rebase merge (linear history, no merge commits), and delete the branch once it's merged.
+- Don't leave branches lying around. If one exists, check whether it's already in `main` (`git log main..<branch>`) and either open a PR for it or delete it.
+- The same rules apply to the backend repo (`../Letterboxle-backend`).

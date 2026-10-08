@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve the application using Nginx
-FROM nginx:1.30.5-alpine3.24@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+FROM nginx:1.31.6-alpine3.24@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2
 # Copy the built assets from the "build" stage
 COPY --from=build /app/dist /usr/share/nginx/html
 # Copy the custom Nginx configuration to handle SPA routing

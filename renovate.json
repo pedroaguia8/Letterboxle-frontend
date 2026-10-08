@@ -8,6 +8,12 @@
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm non-major"
+    },
+    {
+      "description": "Bump CI's Node and the build image's Node in one PR, so tests and the image never use different versions",
+      "matchManagers": ["github-actions", "dockerfile"],
+      "matchDepNames": ["node"],
+      "groupName": "node toolchain"
     }
   ]
 }

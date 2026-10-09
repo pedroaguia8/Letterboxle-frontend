@@ -36,8 +36,8 @@ Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`sr
 
 ## Deployment
 
-- `Dockerfile` is a two-stage build: Node (`node:24…-alpine`) builds the Vite app, then `nginx` (mainline `1.31.x-alpine`) serves `dist/` on port 80. Both base images are pinned by version and digest, and Renovate bumps them.
-- `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network, behind an existing `nginx-proxy-manager`. As in the backend, don't run it locally: the `npm` network only exists on the prod host.
+- `Dockerfile` is a two-stage build: Node (`node:24…-alpine`) builds the Vite app, then `nginxinc/nginx-unprivileged` (mainline `1.31.x-alpine`) serves `dist/` as a non-root user on port 8080 (non-root can't bind ports below 1024, so don't move `nginx.conf` back to 80). Both base images are pinned by version and digest, and Renovate bumps them.
+- `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network, behind an existing `nginx-proxy-manager` (its letterboxle proxy host forwards to `letterboxle-frontend:8080`). As in the backend, don't run it locally: the `npm` network only exists on the prod host.
 
 ## CI/CD
 

@@ -14,12 +14,12 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve the application using Nginx
-FROM nginx:1.31.6-alpine3.24@sha256:df221db836e1754089190208cee7eeda94f233197056426eda74a43ab1abeac2
+# Stage 2: Serve the application using Nginx (unprivileged image: runs as non-root, so it listens on 8080)
+FROM docker.io/nginxinc/nginx-unprivileged:1.31.6-alpine3.24@sha256:b9241c6e7b8e9a862f129d8d4199ab64b10390949a78bdd5603379b32c844083
 # Copy the built assets from the "build" stage
 COPY --from=build /app/dist /usr/share/nginx/html
 # Copy the custom Nginx configuration to handle SPA routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# Expose port 80 and start Nginx
-EXPOSE 80
+# Expose port 8080 and start Nginx
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

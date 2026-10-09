@@ -19,7 +19,7 @@ Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`sr
 
 ## Architecture
 
-- Single-page app with no state-management library. `src/main.jsx` wraps the app in `StrictMode` and `BrowserRouter`. `src/App.jsx` only holds the routes (`/` → `Game`, `/privacy` → `Privacy`, `/about` → `About`) and the `Footer` that links to the two static pages. `About` and `Privacy` share `StaticPage.css`. `Privacy` is a placeholder for now.
+- Single-page app with no state-management library. `src/main.jsx` wraps the app in `StrictMode` and `BrowserRouter`. `src/App.jsx` only holds the routes (`/` → `Game`, `/privacy` → `Privacy`, `/about` → `About`, anything else → `NotFound`) and the `Footer` that links to the two static pages. `About` and `Privacy` share `StaticPage.css`. `Privacy` is a placeholder for now.
 - `src/Game.jsx` runs the whole game flow. All game state lives in `useState` hooks there. Nothing is saved: a page refresh resets the day's game.
 - On mount `Game` makes two independent fetches, each with its own error and retry UI:
   - `GET /api/movie_of_the_day/today` returns the answer and its hint fields.

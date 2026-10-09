@@ -1,0 +1,20 @@
+[Unit]
+Description=Letterboxle frontend (nginx serving the built SPA)
+
+[Container]
+ContainerName=letterboxle-frontend
+# Filled in at deploy time with ghcr.io/pedroaguia8/letterboxle-frontend:<sha>@sha256:<digest>
+Image=@IMAGE@
+# web only (Caddy reaches the site here). Never db: the frontend has no business with Postgres.
+Network=web.network
+# Read-only root; Podman mounts tmpfs on /tmp and /run, where nginx-unprivileged keeps its pid and temp files.
+ReadOnly=true
+DropCapability=ALL
+NoNewPrivileges=true
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target

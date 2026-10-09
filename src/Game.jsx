@@ -25,66 +25,85 @@ function Game() {
   const [movieListError, setMovieListError] = useState(false);
   const [isPuzzleRetrying, setIsPuzzleRetrying] = useState(false);
   const [isMovieListRetrying, setIsMovieListRetrying] = useState(false);
-
-  const fetchPuzzle = async () => {
-    setIsPuzzleRetrying(true);
-    try {
-      const response = await fetch('/api/movie_of_the_day/today');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch daily puzzle: ${response.status}`);
-      }
-      const data = await response.json();
-      setPuzzleDate(data.date);
-      setCorrectMovieId(data.id);
-      setCorrectMovieName(data.title);
-      setCorrectMovieYear(data.year);
-      setPosterUrl(data.poster_url);
-      // Preload so the poster is cached by the time the end-of-game modal shows it
-      new Image().src = data.poster_url;
-      const newHints = [
-        { label: 'Tagline', value: data.tagline },
-        { label: 'Genre', value: Array.isArray(data.genres) ? data.genres.join(', ') : data.genres },
-        { label: 'Director', value: data.director },
-        { label: 'Actor 1', value: data.actor1 },
-        { label: 'Actor 2', value: data.actor2 },
-        { label: 'Year', value: data.year },
-      ];
-      setHints(newHints);
-      setPuzzleError(false);
-    } catch (error) {
-      console.error("Failed to fetch daily puzzle:", error);
-      setPuzzleError(true);
-    } finally {
-      setIsPuzzleRetrying(false);
-    }
-  };
-
-  const fetchMovieList = async () => {
-    setIsMovieListRetrying(true);
-    try {
-      const response = await fetch('/api/movies');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch movie list: ${response.status}`);
-      }
-      const data = await response.json();
-      setMovieList(data);
-      setIsMovieListReady(true);
-      setMovieListError(false);
-    } catch (error) {
-      console.error("Failed to fetch movie list:", error);
-      setMovieListError(true);
-    } finally {
-      setIsMovieListRetrying(false);
-    }
-  };
+  // Bumped by the Retry buttons; each fetch effect re-runs when its counter changes
+  const [puzzleAttempt, setPuzzleAttempt] = useState(0);
+  const [movieListAttempt, setMovieListAttempt] = useState(0);
 
   useEffect(() => {
+    // Set by the cleanup, so a response that arrives after the effect was torn down
+    // (StrictMode's double run in dev, or unmount) is dropped instead of setting state
+    let ignore = false;
+    const fetchPuzzle = async () => {
+      try {
+        const response = await fetch('/api/movie_of_the_day/today');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch daily puzzle: ${response.status}`);
+        }
+        const data = await response.json();
+        if (ignore) return;
+        setPuzzleDate(data.date);
+        setCorrectMovieId(data.id);
+        setCorrectMovieName(data.title);
+        setCorrectMovieYear(data.year);
+        setPosterUrl(data.poster_url);
+        // Preload so the poster is cached by the time the end-of-game modal shows it
+        new Image().src = data.poster_url;
+        const newHints = [
+          { label: 'Tagline', value: data.tagline },
+          { label: 'Genre', value: Array.isArray(data.genres) ? data.genres.join(', ') : data.genres },
+          { label: 'Director', value: data.director },
+          { label: 'Actor 1', value: data.actor1 },
+          { label: 'Actor 2', value: data.actor2 },
+          { label: 'Year', value: data.year },
+        ];
+        setHints(newHints);
+        setPuzzleError(false);
+      } catch (error) {
+        if (ignore) return;
+        console.error("Failed to fetch daily puzzle:", error);
+        setPuzzleError(true);
+      } finally {
+        if (!ignore) setIsPuzzleRetrying(false);
+      }
+    };
     fetchPuzzle();
-  }, []);
+    return () => { ignore = true; };
+  }, [puzzleAttempt]);
 
   useEffect(() => {
+    let ignore = false; // same as in the puzzle effect above
+    const fetchMovieList = async () => {
+      try {
+        const response = await fetch('/api/movies');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch movie list: ${response.status}`);
+        }
+        const data = await response.json();
+        if (ignore) return;
+        setMovieList(data);
+        setIsMovieListReady(true);
+        setMovieListError(false);
+      } catch (error) {
+        if (ignore) return;
+        console.error("Failed to fetch movie list:", error);
+        setMovieListError(true);
+      } finally {
+        if (!ignore) setIsMovieListRetrying(false);
+      }
+    };
     fetchMovieList();
-  }, []);
+    return () => { ignore = true; };
+  }, [movieListAttempt]);
+
+  const retryPuzzle = () => {
+    setIsPuzzleRetrying(true);
+    setPuzzleAttempt((n) => n + 1);
+  };
+
+  const retryMovieList = () => {
+    setIsMovieListRetrying(true);
+    setMovieListAttempt((n) => n + 1);
+  };
 
   const formattedDate = () => {
     if (!puzzleDate) return '';
@@ -187,7 +206,7 @@ function Game() {
           {puzzleError ? (
             <div className="fetch-error">
               <p>Couldn't load today's puzzle.</p>
-              <button className="skip-button" onClick={fetchPuzzle} disabled={isPuzzleRetrying}>
+              <button className="skip-button" onClick={retryPuzzle} disabled={isPuzzleRetrying}>
                 {isPuzzleRetrying ? 'Retrying…' : 'Retry'}
               </button>
             </div>
@@ -209,7 +228,7 @@ function Game() {
                   {movieListError ? (
                     <div className="fetch-error">
                       <p>Couldn't load movie list.</p>
-                      <button className="skip-button" onClick={fetchMovieList} disabled={isMovieListRetrying}>
+                      <button className="skip-button" onClick={retryMovieList} disabled={isMovieListRetrying}>
                         {isMovieListRetrying ? 'Retrying…' : 'Retry'}
                       </button>
                     </div>

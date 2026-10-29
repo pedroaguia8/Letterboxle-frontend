@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Letterboxle is a Wordle-style daily movie-guessing game, live at letterboxle.pedroaguia8.dev. This repo is the React frontend only. The Go backend is in a separate repository (usually checked out next to this one as `../Letterboxle-backend`), and it owns the API contract.
 
+This repo is public: don't name the server hardware (machine models etc.) in any file, commit message or PR here. Say "the server", "the prod host" or "the new server". Hardware details belong in the private `homelab` repo.
+
 ## Commands
 
 - `npm run dev`: start the Vite dev server
@@ -38,7 +40,7 @@ Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`sr
 
 - `Dockerfile` is a two-stage build: Node (`node:24…-alpine`) builds the Vite app, then `nginxinc/nginx-unprivileged` (mainline `1.31.x-alpine`) serves `dist/` as a non-root user on port 8080 (non-root can't bind ports below 1024, so don't move `nginx.conf` back to 80). Both base images are pinned by version and digest, and Renovate bumps them.
 - `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network, behind an existing `nginx-proxy-manager` (its letterboxle proxy host forwards to `letterboxle-frontend:8080`). As in the backend, don't run it locally: the `npm` network only exists on the prod host.
-- `deploy/letterboxle-frontend.container` is the Podman quadlet for the new server (ASUS, rootless Podman under the `apps` user; replaces `docker-compose.yml` at cutover). `Image=@IMAGE@` is a placeholder the deploy fills in with `ghcr.io/pedroaguia8/letterboxle-frontend:<sha>@sha256:<digest>`. It joins only the `web` network (Caddy routes to `letterboxle-frontend:8080`; never `db`) and runs with a read-only root, which works because nginx-unprivileged keeps its pid and temp files in `/tmp` (tmpfs under `ReadOnly=true`). Those names are a contract with the `homelab` repo (`docs/04-services.md`); renaming one changes both. Until the new deploy path exists it's installed by hand.
+- `deploy/letterboxle-frontend.container` is the Podman quadlet for the new server (rootless Podman under the `apps` user; replaces `docker-compose.yml` at cutover). `Image=@IMAGE@` is a placeholder the deploy fills in with `ghcr.io/pedroaguia8/letterboxle-frontend:<sha>@sha256:<digest>`. It joins only the `web` network (Caddy routes to `letterboxle-frontend:8080`; never `db`) and runs with a read-only root, which works because nginx-unprivileged keeps its pid and temp files in `/tmp` (tmpfs under `ReadOnly=true`). Those names are a contract with the `homelab` repo (`docs/04-services.md`); renaming one changes both. Until the new deploy path exists it's installed by hand.
 
 ## CI/CD
 

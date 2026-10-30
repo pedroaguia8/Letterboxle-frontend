@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Letterboxle is a Wordle-style daily movie-guessing game, live at letterboxle.pedroaguia8.dev. This repo is the React frontend only. The Go backend is in a separate repository (usually checked out next to this one as `../Letterboxle-backend`), and it owns the API contract.
 
-This repo is public: don't name the server hardware (machine models etc.) in any file, commit message or PR here. Say "the server", "the prod host" or "the new server". Hardware details belong in the private `homelab` repo.
+This repo is public: don't name the server hardware (machine models etc.) in any file, commit message or PR here. Say "the server" or "the prod host". Hardware details belong in the private `homelab` repo.
 
 ## Commands
 
@@ -39,14 +39,13 @@ Tests sit next to the code as `*.test.js`. So far only pure logic is tested (`sr
 ## Deployment
 
 - `Dockerfile` is a two-stage build: Node (`node:24…-alpine`) builds the Vite app, then `nginxinc/nginx-unprivileged` (mainline `1.31.x-alpine`) serves `dist/` as a non-root user on port 8080 (non-root can't bind ports below 1024, so don't move `nginx.conf` back to 80). Both base images are pinned by version and digest, and Renovate bumps them.
-- `docker-compose.yml` builds and runs the `frontend` service on an external `npm` Docker network, behind an existing `nginx-proxy-manager` (its letterboxle proxy host forwards to `letterboxle-frontend:8080`). As in the backend, don't run it locally: the `npm` network only exists on the prod host.
-- On the new server (rootless Podman under the `apps` user; replaces `docker-compose.yml` at cutover) the app runs from a Podman quadlet that's installed by hand and whose git copy lives in the `homelab` repo (`quadlets/letterboxle-frontend.container`), not here. It joins only the `web` network (Caddy routes to `letterboxle-frontend:8080`; never `db`) and runs with a read-only root, which works because nginx-unprivileged keeps its pid and temp files in `/tmp` (tmpfs under `ReadOnly=true`). Those names are a contract with the `homelab` repo (`docs/04-services.md`); renaming one changes both.
+- On the server (rootless Podman under the `apps` user) the app runs from a Podman quadlet that's installed by hand and whose git copy lives in the `homelab` repo (`quadlets/letterboxle-frontend.container`), not here. It joins only the `web` network (Caddy routes to `letterboxle-frontend:8080`; never `db`) and runs with a read-only root, which works because nginx-unprivileged keeps its pid and temp files in `/tmp` (tmpfs under `ReadOnly=true`). Those names are a contract with the `homelab` repo (`docs/04-services.md`); renaming one changes both.
 
 ## CI/CD
 
 - `ci.yml`: on PR/push to `main` or `dev`, runs tests and the build in one job, and lint in a separate job. Both use `npm ci` on Node 24. On push to `main` only, it also builds and pushes the image to GHCR.
-- `cd.yml`'s `deploy-new-server` job (alongside the `deploy` job for the current prod host until cutover) deploys to the new server. The `image` job in `ci.yml` uploads the pinned ref (`ghcr.io/pedroaguia8/letterboxle-frontend:<sha>@sha256:<digest>`) as the `image-ref` artifact; `deploy-new-server` downloads it from that run and sends only that string over SSH (through Access) as `apps`. The deploy key's forced command (`deploy-app` in the `homelab` repo) pulls the image, swaps the quadlet's `Image=` line, restarts and checks, rolling back if the check fails. Its secrets are the `NEW_SERVER_*` ones in the `production` Environment, plus the shared `TUNNEL_SERVICE_TOKEN_*`.
-- `cd.yml`: triggers when the `ci` workflow completes successfully on `main` (not directly on push). Its `deploy` job SSHes into the prod host through a cloudflared tunnel, runs `git pull` in `~/Letterboxle-frontend`, rebuilds the image with `docker compose build --no-cache` (deliberately uncached, because cached builds caused bugs before), and brings the stack up. (It used to also restart `nginx-proxy-manager`; that was only needed because NPM's `/api` route cached the backend's IP, fixed in NPM's config on 2026-10-06. NPM re-resolves the frontend's container name on its own.) It uses the same `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY` and `SSH_KNOWN_HOSTS` secrets as the backend. The frontend needs no app secrets.
+- `cd.yml`: triggers when the `ci` workflow completes successfully on `main` (not directly on push). The `image` job in `ci.yml` uploads the pinned ref (`ghcr.io/pedroaguia8/letterboxle-frontend:<sha>@sha256:<digest>`) as the `image-ref` artifact; the `deploy` job downloads it from that run and sends only that string over SSH (through Access) as `apps`. The deploy key's forced command (`deploy-app` in the `homelab` repo) pulls the image, swaps the quadlet's `Image=` line, restarts and checks, rolling back if the check fails.
+- Its secrets live in the `production` Environment (limited to `main`): `SSH_HOST`, `SSH_USER`, `SSH_KNOWN_HOSTS`, `SSH_PRIVATE_KEY` (this app's own deploy key, usable only for `deploy-app letterboxle-frontend`), plus the shared `TUNNEL_SERVICE_TOKEN_*` (Access service token). The frontend needs no app secrets.
 
 ## Git workflow
 

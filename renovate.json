@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests", "schedule:monthly"],
   "baseBranchPatterns": ["dev"],
-  "enabledManagers": ["dockerfile", "docker-compose", "github-actions", "npm"],
+  "enabledManagers": ["dockerfile", "github-actions", "npm"],
   "packageRules": [
     {
       "matchManagers": ["npm"],

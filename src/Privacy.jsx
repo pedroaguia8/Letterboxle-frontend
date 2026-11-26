@@ -3,7 +3,8 @@ import './StaticPage.css';
 
 // TODO: replace with the full GDPR-complete version (controller identity,
 // legal basis, international-transfer disclosure, data-subject rights,
-// breach-notification note) — see the T0.6 plan.
+// breach-notification note) — see the T0.6 plan. When it's written, add
+// /privacy to public/sitemap.xml (left out while it's a placeholder).
 function Privacy() {
   return (
     <div className="static-page">

@@ -5,6 +5,7 @@ import './StaticPage.css';
 function About() {
   return (
     <div className="static-page">
+      <link rel="canonical" href="https://letterboxle.pedroaguia8.dev/about" />
       <Link to="/" className="back-link">&larr; Back to the game</Link>
       <h1>About Letterboxle</h1>
       <p>

@@ -7,6 +7,7 @@ import './StaticPage.css';
 function Privacy() {
   return (
     <div className="static-page">
+      <link rel="canonical" href="https://letterboxle.pedroaguia8.dev/privacy" />
       <Link to="/" className="back-link">&larr; Back to the game</Link>
       <h1>Privacy Policy</h1>
       <p>This page is under construction. Full details coming soon.</p>

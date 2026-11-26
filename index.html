@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Letterboxle</title>
+    <title>Letterboxle – Daily Movie Guessing Game</title>
+    <meta name="description" content="Letterboxle is a free daily movie-guessing game. Guess the mystery movie in six tries from its tagline, genres, director, lead actors and release year.">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://letterboxle.pedroaguia8.dev/">
@@ -19,7 +20,18 @@
     <meta property="twitter:image" content="https://i.imgur.com/KsOt4bV.png">
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Replaced by the app on load. It gives crawlers and no-JS visitors
+         something to read in the raw HTML. -->
+    <div id="root">
+      <h1>Letterboxle</h1>
+      <p>
+        A daily movie-guessing game. There's one mystery movie a day and six
+        tries to guess it, starting from its tagline. Each wrong guess or skip
+        reveals another hint: the genres, the director, two lead actors and
+        the release year.
+      </p>
+      <p><a href="/about">About Letterboxle</a></p>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
